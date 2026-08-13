@@ -8,7 +8,6 @@
     :root{
         --bg: #05070d;
         --panel: #0b0f1a;
-        --panel-2: #10162660;
         --border: #1c2436;
         --text: #e7ecf5;
         --muted: #7c8aa8;
@@ -29,286 +28,272 @@
         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
         min-height:100%;
     }
+    a{ color:inherit; }
 
-    header{
-        padding:28px 24px 12px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        flex-wrap:wrap;
-        gap:12px;
+    .wrap{ max-width:1080px; margin:0 auto; padding:0 24px 80px; }
+
+    /* ---------- Hero ---------- */
+    header.hero{
+        padding:56px 24px 40px;
+        text-align:center;
     }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .brand .logo{
-        width:42px;height:42px;border-radius:12px;
+    .logo{
+        width:64px;height:64px;border-radius:18px;margin:0 auto 20px;
         background:linear-gradient(135deg,var(--green),var(--blue));
         display:flex;align-items:center;justify-content:center;
-        font-weight:800;color:#04101a;font-size:18px;
-        box-shadow:0 0 24px rgba(23,255,158,.45);
+        font-weight:800;color:#04101a;font-size:26px;
+        box-shadow:0 0 34px rgba(23,255,158,.45);
     }
-    .brand h1{ font-size:20px; margin:0; letter-spacing:.5px; }
-    .brand small{ color:var(--muted); font-size:12px; letter-spacing:1.5px; text-transform:uppercase; }
-
-    .status-pill{
-        display:flex; align-items:center; gap:8px;
-        padding:8px 14px; border-radius:999px;
-        background:var(--panel); border:1px solid var(--border);
-        font-size:12px; color:var(--muted);
+    h1{ font-size:40px; margin:0 0 10px; letter-spacing:.5px; }
+    h1 span{ color:var(--green); }
+    .tagline{
+        color:var(--muted); font-size:16px; max-width:640px; margin:0 auto 6px;
+        line-height:1.6;
     }
-    .dot{ width:8px;height:8px;border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); }
-    .dot.offline{ background:var(--red); box-shadow:0 0 10px var(--red); }
-
-    main{ padding: 8px 24px 60px; max-width:1280px; margin:0 auto; }
-
-    .bento{
-        display:grid;
-        grid-template-columns: 1.4fr 1fr 1fr;
-        gap:16px;
-        margin: 12px 0 24px;
+    .badge-academic{
+        display:inline-block; margin-top:18px; font-size:12px; color:var(--muted);
+        border:1px solid var(--border); border-radius:999px; padding:8px 16px;
+        letter-spacing:.4px;
     }
-    @media (max-width: 760px){ .bento{ grid-template-columns:1fr; } }
 
+    /* ---------- CTA buttons ---------- */
+    .cta-row{
+        display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+        margin:34px 0 8px;
+    }
+    .cta{
+        display:flex; align-items:center; gap:12px;
+        padding:18px 28px; border-radius:16px; text-decoration:none;
+        font-weight:700; font-size:16px; min-width:230px; justify-content:center;
+        transition:transform .15s ease, box-shadow .15s ease; border:1px solid transparent;
+    }
+    .cta:hover{ transform:translateY(-2px); }
+    .cta .icon{ font-size:22px; }
+    .cta.primary{
+        background:linear-gradient(135deg, var(--green), #0bd4a0);
+        color:#04150f; box-shadow:0 8px 30px rgba(23,255,158,.25);
+    }
+    .cta.secondary{
+        background:var(--panel); color:var(--text); border-color:var(--border);
+    }
+    .cta.secondary:hover{ border-color:var(--blue); box-shadow:0 8px 30px rgba(59,167,255,.15); }
+    .cta .sub{ display:block; font-weight:400; font-size:11px; opacity:.75; margin-top:2px; }
+
+    .link-row{
+        display:flex; justify-content:center; gap:22px; margin-top:20px; flex-wrap:wrap;
+    }
+    .link-row a{
+        font-size:13px; color:var(--muted); text-decoration:none; border-bottom:1px dashed var(--border);
+        padding-bottom:2px;
+    }
+    .link-row a:hover{ color:var(--blue); border-color:var(--blue); }
+
+    /* ---------- Sections ---------- */
+    section{ margin-top:56px; }
+    section h2{
+        font-size:13px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted);
+        margin:0 0 18px; display:flex; align-items:center; gap:10px;
+    }
+    section h2::after{ content:""; flex:1; height:1px; background:var(--border); }
+
+    /* Bento intro grid */
+    .bento{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+    @media (max-width:760px){ .bento{ grid-template-columns:1fr; } }
     .card{
-        background: linear-gradient(180deg, var(--panel) 0%, #090c15 100%);
-        border:1px solid var(--border);
-        border-radius:18px;
-        padding:20px 22px;
-        position:relative;
-        overflow:hidden;
+        background:linear-gradient(180deg, var(--panel) 0%, #090c15 100%);
+        border:1px solid var(--border); border-radius:18px; padding:24px;
     }
-    .stat{ }
-    .stat .label{ color:var(--muted); font-size:12px; letter-spacing:1.2px; text-transform:uppercase; }
-    .stat .value{ font-size:46px; font-weight:800; margin-top:6px; line-height:1; }
-    .stat.livres .value{ color:var(--green); text-shadow:0 0 26px rgba(23,255,158,.5); }
-    .stat.ocupadas .value{ color:var(--red); text-shadow:0 0 26px rgba(255,59,110,.5); }
-    .stat.taxa .value{ color:var(--blue); text-shadow:0 0 26px rgba(59,167,255,.5); }
-    .stat .sub{ margin-top:8px; color:var(--muted); font-size:12px; }
+    .card p{ color:var(--muted); font-size:14px; line-height:1.7; margin:0 0 10px; }
+    .card p:last-child{ margin-bottom:0; }
+    .card strong{ color:var(--text); }
 
-    .filters{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
-    .filters button{
-        background:var(--panel); color:var(--text); border:1px solid var(--border);
-        padding:10px 16px; border-radius:999px; font-size:13px; cursor:pointer;
-        transition:.15s ease;
-    }
-    .filters button:hover{ border-color:var(--blue); }
-    .filters button.active{
-        background: linear-gradient(135deg, rgba(23,255,158,.15), rgba(59,167,255,.15));
-        border-color:var(--green); color:var(--green);
-        box-shadow:0 0 18px rgba(23,255,158,.15);
+    .pill-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .pill{
+        font-size:11px; padding:6px 12px; border-radius:999px;
+        border:1px solid var(--border); color:var(--muted); letter-spacing:.3px;
     }
 
-    .grid{
-        display:grid;
-        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-        gap:14px;
+    /* Architecture flow */
+    .flow{
+        display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+        margin-top:6px;
     }
-
-    .vaga{
-        border-radius:16px; padding:16px; position:relative;
-        background: var(--panel);
-        border:1px solid var(--border);
-        transition: transform .15s ease, box-shadow .15s ease;
+    .flow .node{
+        background:var(--panel); border:1px solid var(--border); border-radius:12px;
+        padding:12px 16px; font-size:12px; text-align:center; min-width:120px;
     }
-    .vaga:hover{ transform: translateY(-3px); }
+    .flow .node b{ display:block; font-size:13px; margin-bottom:2px; }
+    .flow .arrow{ color:var(--muted); font-size:18px; }
 
-    .vaga.livre{ border-color: rgba(23,255,158,.4); box-shadow: inset 0 0 0 1px rgba(23,255,158,.08), 0 0 22px rgba(23,255,158,.08); }
-    .vaga.ocupada{ border-color: rgba(255,59,110,.4); box-shadow: inset 0 0 0 1px rgba(255,59,110,.08), 0 0 22px rgba(255,59,110,.08); }
-    .vaga.preferencial-ocupada{ border-color: rgba(59,167,255,.5); box-shadow: inset 0 0 0 1px rgba(59,167,255,.1), 0 0 22px rgba(59,167,255,.12); }
-
-    .vaga .top{ display:flex; justify-content:space-between; align-items:flex-start; }
-    .vaga .id{ font-size:22px; font-weight:800; letter-spacing:.5px; }
-    .vaga.livre .id{ color:var(--green); }
-    .vaga.ocupada .id{ color:var(--red); }
-    .vaga.preferencial-ocupada .id{ color:var(--blue); }
-
-    .vaga .andar{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
-
-    .badge{
-        font-size:10px; padding:3px 8px; border-radius:999px; letter-spacing:.5px;
-        border:1px solid var(--border); color:var(--muted); text-transform:uppercase;
+    /* Stack grid */
+    .stack-grid{
+        display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px;
     }
-    .badge.pcd{ color:var(--blue); border-color:rgba(59,167,255,.5); }
-
-    .vaga .status{ margin-top:14px; font-size:13px; font-weight:600; }
-    .vaga.livre .status{ color:var(--green); }
-    .vaga.ocupada .status{ color:var(--red); }
-    .vaga.preferencial-ocupada .status{ color:var(--blue); }
-
-    .vaga .bottom{ display:flex; justify-content:space-between; align-items:center; margin-top:14px; }
-    .fav-count{ font-size:11px; color:var(--muted); }
-
-    .heart{
-        background:none; border:none; cursor:pointer; font-size:20px;
-        color:#3a4361; transition:.15s ease; line-height:1;
+    .stack-item{
+        background:var(--panel); border:1px solid var(--border); border-radius:12px;
+        padding:14px; font-size:12px;
     }
-    .heart:hover{ transform:scale(1.15); }
-    .heart.active{ color:var(--red); text-shadow:0 0 14px rgba(255,59,110,.7); }
+    .stack-item b{ display:block; color:var(--text); font-size:13px; margin-bottom:3px; }
+    .stack-item span{ color:var(--muted); }
 
-    footer{ text-align:center; color:var(--muted); font-size:11px; padding:20px; }
+    /* Topics table */
+    table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+    th,td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); }
+    th{ color:var(--muted); font-weight:600; text-transform:uppercase; font-size:10.5px; letter-spacing:.6px; }
+    td code, .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+    .retain-yes{ color:var(--green); font-weight:700; }
+
+    footer{ text-align:center; color:var(--muted); font-size:11px; padding:40px 20px; }
+    footer a{ color:var(--muted); }
 </style>
 </head>
 <body>
 
-<header>
-    <div class="brand">
-        <div class="logo">SP</div>
-        <div>
-            <h1>SmartPark<span style="color:var(--green)">-RED</span></h1>
-            <small>Estacionamento Inteligente · 3 Andares · 15 Vagas</small>
-        </div>
+<header class="hero">
+    <div class="logo">SP</div>
+    <h1>SmartPark<span>-RED</span></h1>
+    <p class="tagline">
+        Sistema IoT de estacionamento inteligente — 3 andares, 15 vagas monitoradas em
+        tempo real, arquitetura MQTT publish/subscribe de dupla via, persistência em
+        PostgreSQL, API REST, portal web e app mobile — 100% em containers Docker.
+    </p>
+    <span class="badge-academic">
+        Projeto acadêmico · Tecnologias de Comunicação em IoT · UFPA · 2026
+    </span>
+
+    <div class="cta-row">
+        <a class="cta primary" href="/painel">
+            <span class="icon">🅿️</span>
+            <span>Abrir Painel de Vagas<span class="sub">status ao vivo · /painel</span></span>
+        </a>
+        <a class="cta secondary" href="/admin-red" target="_blank" rel="noopener">
+            <span class="icon">⚙️</span>
+            <span>Admin Node-RED<span class="sub">editor de flows · login necessário</span></span>
+        </a>
     </div>
-    <div class="status-pill"><span class="dot" id="connDot"></span><span id="connLabel">conectando…</span></div>
+    <div class="link-row">
+        <a href="/monitor">📡 Monitor MQTT (para uso com app myMQTT)</a>
+        <a href="https://github.com/jorgyvanlima/smartpark-red" target="_blank" rel="noopener">💻 Código no GitHub</a>
+    </div>
 </header>
 
-<main>
-    <section class="bento">
-        <div class="card stat livres">
-            <div class="label">Vagas Livres</div>
-            <div class="value" id="statLivres">–</div>
-            <div class="sub">de <span id="statTotal">15</span> vagas totais</div>
-        </div>
-        <div class="card stat ocupadas">
-            <div class="label">Vagas Ocupadas</div>
-            <div class="value" id="statOcupadas">–</div>
-            <div class="sub">atualizado em tempo real</div>
-        </div>
-        <div class="card stat taxa">
-            <div class="label">Taxa de Ocupação</div>
-            <div class="value"><span id="statTaxa">–</span>%</div>
-            <div class="sub">consulta a cada 2s</div>
-        </div>
-    </section>
+<div class="wrap">
 
-    <section class="filters" id="filters">
-        <button data-filter="todos" class="active">Todos os Andares</button>
-        <button data-filter="Andar 1">Andar 1 (A)</button>
-        <button data-filter="Andar 2">Andar 2 (B)</button>
-        <button data-filter="Andar 3">Andar 3 (C)</button>
-        <button data-filter="pcd">Vagas PCD / Preferencial</button>
-    </section>
-
-    <section class="grid" id="grid"></section>
-</main>
-
-<footer>SmartPark-RED · Projeto acadêmico de IoT · dados via MQTT + Node-RED + PostgreSQL</footer>
-
-<script>
-const API_URL = "/api/vagas";
-const FAV_URL = "/api/favorita";
-const POLL_MS = 2000;
-const FAV_STORAGE_KEY = "smartpark_red_favoritas";
-
-let currentFilter = "todos";
-let vagasCache = [];
-
-function getFavoritas(){
-    try { return JSON.parse(localStorage.getItem(FAV_STORAGE_KEY) || "[]"); }
-    catch(e){ return []; }
-}
-function toggleFavoritaLocal(id){
-    const favs = getFavoritas();
-    const idx = favs.indexOf(id);
-    if (idx >= 0) favs.splice(idx, 1); else favs.push(id);
-    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(favs));
-    return favs;
-}
-
-function statusClasse(v){
-    if (!v.ocupada) return "livre";
-    if (v.preferencial) return "preferencial-ocupada";
-    return "ocupada";
-}
-function statusTexto(v){
-    if (!v.ocupada) return "Livre";
-    if (v.preferencial) return "Ocupada · PCD/Idoso/Elétrico";
-    return "Ocupada";
-}
-
-function render(vagas){
-    vagasCache = vagas;
-    const favs = getFavoritas();
-
-    const total = vagas.length;
-    const ocupadas = vagas.filter(v => v.ocupada).length;
-    const livres = total - ocupadas;
-    const taxa = total ? Math.round((ocupadas/total)*1000)/10 : 0;
-
-    document.getElementById("statLivres").textContent = livres;
-    document.getElementById("statOcupadas").textContent = ocupadas;
-    document.getElementById("statTaxa").textContent = taxa;
-    document.getElementById("statTotal").textContent = total;
-
-    const filtradas = vagas.filter(v => {
-        if (currentFilter === "todos") return true;
-        if (currentFilter === "pcd") return v.preferencial;
-        return v.andar === currentFilter;
-    });
-
-    const grid = document.getElementById("grid");
-    grid.innerHTML = filtradas.map(v => {
-        const cls = statusClasse(v);
-        const isFav = favs.includes(v.id);
-        return `
-        <div class="vaga ${cls}" data-id="${v.id}">
-            <div class="top">
-                <div>
-                    <div class="id">${v.id}</div>
-                    <div class="andar">${v.andar}</div>
+    <section>
+        <h2>Visão geral</h2>
+        <div class="bento">
+            <div class="card">
+                <p>
+                    Em estacionamentos de múltiplos andares, a falta de indicação de vagas
+                    livres em tempo real gera circulação desnecessária de veículos, perda de
+                    tempo e emissão extra de poluentes. O <strong>SmartPark-RED</strong> resolve
+                    isso monitorando 15 vagas (<span class="mono">A01</span> a
+                    <span class="mono">C05</span>, distribuídas em 3 andares, com
+                    <span class="mono">A05</span>/<span class="mono">B05</span>/<span class="mono">C05</span>
+                    reservadas como preferenciais/PCD) e distribuindo o status em tempo real
+                    para o operador (app MQTT) e o cliente final (portal web).
+                </p>
+                <p>
+                    A geração do dado tem <strong>dupla via</strong>: um ESP32 simulado no
+                    Wokwi publica cada mudança de estado no broker MQTT, e um flow de backup
+                    no Node-RED sorteia e inverte vagas a cada 15s — assim o sistema continua
+                    demonstrável mesmo com o hardware simulado desligado.
+                </p>
+                <div class="pill-list">
+                    <span class="pill">MQTT publish/subscribe</span>
+                    <span class="pill">Docker Compose</span>
+                    <span class="pill">PostgreSQL</span>
+                    <span class="pill">Node-RED</span>
+                    <span class="pill">ESP32 / Wokwi</span>
+                    <span class="pill">TLS Let's Encrypt</span>
                 </div>
-                ${v.preferencial ? '<span class="badge pcd">PCD</span>' : '<span class="badge">Comum</span>'}
             </div>
-            <div class="status">${statusTexto(v)}</div>
-            <div class="bottom">
-                <span class="fav-count">♥ ${v.contador_favorita || 0}</span>
-                <button class="heart ${isFav ? 'active' : ''}" data-id="${v.id}" title="Marcar como favorita">♥</button>
+            <div class="card">
+                <p><strong>Vagas monitoradas</strong></p>
+                <p style="font-size:34px;font-weight:800;color:var(--green);margin:0;text-shadow:0 0 22px rgba(23,255,158,.4)">15</p>
+                <p style="margin-top:2px">3 andares · 3 vagas preferenciais (PCD)</p>
+                <p style="margin-top:18px"><strong>Atualização</strong></p>
+                <p style="margin:0">Painel web: a cada 2s (polling)<br>Monitor MQTT: em tempo real (WebSocket)</p>
             </div>
-        </div>`;
-    }).join("");
+        </div>
+    </section>
 
-    grid.querySelectorAll(".heart").forEach(btn => {
-        btn.addEventListener("click", onFavoritaClick);
-    });
-}
+    <section>
+        <h2>Arquitetura</h2>
+        <div class="card">
+            <div class="flow">
+                <div class="node"><b>ESP32 (Wokwi)</b>15 botões + NeoPixel</div>
+                <span class="arrow">＋</span>
+                <div class="node"><b>Node-RED</b>simulador 15s</div>
+                <span class="arrow">→</span>
+                <div class="node"><b>Mosquitto</b>broker MQTT</div>
+                <span class="arrow">→</span>
+                <div class="node"><b>Node-RED</b>persistência + API</div>
+                <span class="arrow">→</span>
+                <div class="node"><b>PostgreSQL</b>vagas + histórico</div>
+                <span class="arrow">→</span>
+                <div class="node"><b>Nginx (TLS)</b>portal + API</div>
+            </div>
+            <p style="margin-top:18px">
+                Cada serviço roda isolado em container Docker próprio, com rede interna
+                dedicada. Só o Node-RED se conecta também à rede do proxy reverso
+                compartilhado da VPS — o projeto convive com outros sistemas hospedados na
+                mesma máquina sem expor portas extras nem interferir neles.
+            </p>
+        </div>
+    </section>
 
-async function onFavoritaClick(ev){
-    const id = ev.currentTarget.getAttribute("data-id");
-    toggleFavoritaLocal(id);
-    try {
-        await fetch(FAV_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ vaga_id: id })
-        });
-    } catch (e) { /* mantém preferência local mesmo se a rede falhar */ }
-    render(vagasCache);
-}
+    <section>
+        <h2>Stack técnica</h2>
+        <div class="stack-grid">
+            <div class="stack-item"><b>Mosquitto</b><span>Broker MQTT 2.1.2</span></div>
+            <div class="stack-item"><b>Node-RED</b><span>5.0.4 · Node.js 24</span></div>
+            <div class="stack-item"><b>PostgreSQL</b><span>15.18 (Alpine)</span></div>
+            <div class="stack-item"><b>Nginx</b><span>Proxy reverso + TLS</span></div>
+            <div class="stack-item"><b>Docker Compose</b><span>Orquestração v2</span></div>
+            <div class="stack-item"><b>ESP32</b><span>Simulado no Wokwi</span></div>
+            <div class="stack-item"><b>HTML/CSS/JS</b><span>Vanilla, sem frameworks</span></div>
+            <div class="stack-item"><b>Let's Encrypt</b><span>Certificado TLS automático</span></div>
+        </div>
+    </section>
 
-async function poll(){
-    try {
-        const res = await fetch(API_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        render(data);
-        document.getElementById("connDot").classList.remove("offline");
-        document.getElementById("connLabel").textContent = "ao vivo";
-    } catch (e) {
-        document.getElementById("connDot").classList.add("offline");
-        document.getElementById("connLabel").textContent = "sem conexão";
-    }
-}
+    <section>
+        <h2>Tópicos MQTT</h2>
+        <div class="card" style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr><th>Tópico</th><th>Publicado por</th><th>QoS</th><th>Retain</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">estacionamento/vagas/status</td>
+                        <td>ESP32 / simulador Node-RED</td>
+                        <td>0–1</td>
+                        <td>não</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">estacionamento/resumo</td>
+                        <td>Node-RED</td>
+                        <td>1</td>
+                        <td class="retain-yes">sim</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">estacionamento/alerta</td>
+                        <td>Node-RED</td>
+                        <td>1</td>
+                        <td>não</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-document.getElementById("filters").addEventListener("click", (ev) => {
-    const btn = ev.target.closest("button[data-filter]");
-    if (!btn) return;
-    currentFilter = btn.getAttribute("data-filter");
-    document.querySelectorAll("#filters button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    render(vagasCache);
-});
+</div>
 
-poll();
-setInterval(poll, POLL_MS);
-</script>
+<footer>
+    SmartPark-RED · Projeto acadêmico de IoT · UFPA 2026 ·
+    <a href="https://github.com/jorgyvanlima/smartpark-red" target="_blank" rel="noopener">código-fonte no GitHub</a>
+</footer>
 
 </body>
 </html>

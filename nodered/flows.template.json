@@ -61,9 +61,14 @@
     { "id": "t3_prep_fav_resp", "type": "function", "z": "t3", "name": "Extrair linha atualizada", "func": "msg.payload = (msg.payload || [])[0] || { error: \"vaga não encontrada\" };\nreturn msg;", "outputs": 1, "noerr": 0, "x": 890, "y": 200, "wires": [["t3_resp_fav"]] },
     { "id": "t3_resp_fav", "type": "http response", "z": "t3", "name": "200/400 JSON", "statusCode": "", "headers": {}, "x": 900, "y": 260, "wires": [] },
 
-    { "id": "t4", "type": "tab", "label": "Flow 4 - Servidor do Portal do Cliente", "disabled": false, "info": "Serve o Portal Web (também disponível em / via httpStatic)." },
+    { "id": "t4", "type": "tab", "label": "Flow 4 - Servidor do Portal do Cliente", "disabled": false, "info": "Serve a landing page (/), o Painel (/painel, alias /vagas) e o Monitor MQTT (/monitor)." },
 
-    { "id": "t4_get_vagas_page", "type": "http in", "z": "t4", "name": "GET /vagas", "url": "/vagas", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["t4_serve_portal"]] },
-    { "id": "t4_serve_portal", "type": "function", "z": "t4", "name": "Ler web/index.html", "func": "try {\n    const fs = global.get('fs');\n    const html = fs.readFileSync('/data/web/index.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar portal: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 400, "y": 100, "wires": [["t4_resp_portal"]] },
-    { "id": "t4_resp_portal", "type": "http response", "z": "t4", "name": "200 HTML", "statusCode": "", "headers": {}, "x": 620, "y": 100, "wires": [] }
+    { "id": "t4_get_painel", "type": "http in", "z": "t4", "name": "GET /painel", "url": "/painel", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["t4_serve_painel"]] },
+    { "id": "t4_get_vagas_page", "type": "http in", "z": "t4", "name": "GET /vagas (alias)", "url": "/vagas", "method": "get", "upload": false, "swaggerDoc": "", "x": 180, "y": 150, "wires": [["t4_serve_painel"]] },
+    { "id": "t4_serve_painel", "type": "function", "z": "t4", "name": "Ler web/painel.html", "func": "try {\n    const fs = global.get('fs');\n    const html = fs.readFileSync('/data/web/painel.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar painel: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 420, "y": 125, "wires": [["t4_resp_html"]] },
+
+    { "id": "t4_get_monitor", "type": "http in", "z": "t4", "name": "GET /monitor", "url": "/monitor", "method": "get", "upload": false, "swaggerDoc": "", "x": 175, "y": 220, "wires": [["t4_serve_monitor"]] },
+    { "id": "t4_serve_monitor", "type": "function", "z": "t4", "name": "Ler web/monitor.html", "func": "try {\n    const fs = global.get('fs');\n    const html = fs.readFileSync('/data/web/monitor.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar monitor: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 420, "y": 220, "wires": [["t4_resp_html"]] },
+
+    { "id": "t4_resp_html", "type": "http response", "z": "t4", "name": "200 HTML", "statusCode": "", "headers": {}, "x": 660, "y": 170, "wires": [] }
 ]

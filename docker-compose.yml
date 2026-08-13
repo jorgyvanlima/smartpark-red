@@ -11,6 +11,7 @@ services:
       - ./mosquitto/log:/mosquitto/log
     networks:
       - smartpark_internal
+      - mcorecloud-network # para o Nginx compartilhado alcançar o listener WebSocket (:9001) e servir wss:// no domínio
     mem_limit: 96m
 
   smartpark_postgres:

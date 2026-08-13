@@ -129,7 +129,11 @@ nodered/
   ├─ settings.js               # editor protegido por login, portal estático, etc.
   ├─ package.json              # dependência node-red-contrib-postgresql
   └─ flows.template.json       # os 4 flows (credenciais são injetadas no deploy)
-web/index.html                 # Portal do Cliente (High-Tech, dark neon, vanilla JS)
+web/
+  ├─ index.html                  # Landing page (/) — visão geral + botões Painel / Admin
+  ├─ painel.html                  # Painel de vagas (/painel, alias /vagas) — High-Tech, dark neon
+  ├─ monitor.html                 # Monitor MQTT (/monitor) — MQTT sobre WebSocket ao vivo
+  └─ vendor/mqtt.min.js            # cliente MQTT.js auto-hospedado (sem CDN)
 esp32/
   ├─ sketch.ino                 # firmware ESP32 (Wokwi)
   ├─ diagram.json                # circuito Wokwi (15 botões + NeoPixel)
@@ -188,8 +192,8 @@ O middleware (`nodered/flows.template.json`) organiza a lógica em 4 flows:
    (o broker entrega de volta ao próprio Node-RED, reaproveitando o Flow 1).
 3. **API HTTP** — `GET /api/vagas` (lista completa) e `POST /api/favorita`
    (`{"vaga_id":"A01"}`, incrementa o contador).
-4. **Servidor do portal** — serve `web/index.html` em `GET /vagas` (e também
-   em `/`, via arquivo estático).
+4. **Servidor do portal** — serve a landing (`/`, estática), o painel
+   (`GET /painel`, alias `GET /vagas`) e o monitor MQTT (`GET /monitor`).
 
 ## Tópicos MQTT
 
@@ -209,19 +213,30 @@ conectar, sem esperar o próximo evento.
 |---|---|---|
 | `GET` | `/api/vagas` | Lista as 15 vagas com status atual |
 | `POST` | `/api/favorita` | `{"vaga_id":"A01"}` → incrementa `contador_favorita` |
-| `GET` | `/vagas` ou `/` | Portal Web do cliente |
+| `GET` | `/` | Landing page do projeto |
+| `GET` | `/painel` (alias `/vagas`) | Painel de vagas em tempo real |
+| `GET` | `/monitor` | Monitor MQTT ao vivo (WebSocket) |
 
 ## Portal web do cliente
 
-`web/index.html` — página única, HTML/CSS/JS vanilla, tema **dark neon
-high-tech**:
+Três páginas HTML/CSS/JS vanilla (sem frameworks), tema **dark neon high-tech**,
+servidas pelo próprio Node-RED (Flow 4):
 
-- Bento grid com vagas livres, ocupadas e taxa de ocupação em destaque;
-- filtros por andar e por vagas preferenciais/PCD;
-- grade das 15 vagas com cor por status (verde = livre, vermelho = ocupada,
-  azul = ocupada preferencial);
-- botão de favoritar por vaga (grava em `localStorage` + `POST /api/favorita`);
-- atualização automática a cada 2s via `fetch` em `/api/vagas`.
+- **`/` — Landing**: visão geral do projeto (a mesma informação deste README,
+  resumida), arquitetura, stack técnica, tópicos MQTT, e os 2 botões de acesso
+  rápido: **Painel de Vagas** e **Admin Node-RED**.
+- **`/painel` (alias `/vagas`) — Painel de Vagas**: bento grid com vagas
+  livres/ocupadas/taxa de ocupação, filtros por andar e por PCD, grade das 15
+  vagas coloridas por status, favoritar vaga (`localStorage` +
+  `POST /api/favorita`), atualização automática a cada 2s via `fetch` em
+  `/api/vagas`.
+- **`/monitor` — Monitor MQTT**: conecta direto no broker via **MQTT sobre
+  WebSocket** (`wss://.../mqtt-ws`, proxiado pelo Nginx até o listener 9001 do
+  Mosquitto) usando o cliente `mqtt.js` auto-hospedado em `web/vendor/`. Assina
+  `estacionamento/#` e atualiza vagas, contadores e um log de mensagens em
+  tempo real — a versão web do que o app **myMQTT** mostra no celular. A
+  própria página traz a tabela de host/porta/tópicos para quem preferir
+  configurar o myMQTT/MQTT Dash em vez de usar o navegador.
 
 ## Firmware ESP32 / Wokwi
 
