@@ -106,19 +106,22 @@ Assinaturas recomendadas:
 - `estacionamento/alerta` → widget de notificação/push (`LOTADO`, vaga PCD ocupada).
 - `estacionamento/vagas/status` → widget de log/histórico de eventos.
 
-## 7. Editor do Node-RED (uso administrativo, não público)
+## 7. Editor do Node-RED (via navegador, com login)
 
-O editor de flows (`/admin-red`) **não** é exposto pelo Nginx (bloco `return 404;`
-no vhost). Para editar os flows, use um túnel SSH até a VPS:
+O editor de flows fica em `https://smartpark-red.sytes.net/admin-red`, atrás do
+mesmo Nginx/HTTPS do site e protegido por usuário/senha (`adminAuth` em
+`nodered/settings.js`, lido de `NODE_RED_ADMIN_USER` /
+`NODE_RED_ADMIN_PASSWORD_HASH` no `.env`). Não precisa de túnel SSH nem de
+ambiente gráfico na VPS — só abrir a URL em qualquer navegador.
+
+Para trocar a senha:
 
 ```bash
-ssh -L 1880:localhost:1880 -p 22022 jorgyvan@smartpark-red.sytes.net \
-    -N -o ProxyCommand="none"
-# depois, no navegador local: http://localhost:1880/admin-red
+python3 -c "import bcrypt; print(bcrypt.hashpw(b'SUA_SENHA_NOVA', bcrypt.gensalt(10)).decode())"
 ```
 
-(ou, mais simples, `docker exec -it smartpark_nodered sh` para inspecionar/editar
-`/data/flows.json` diretamente).
+Copie o hash gerado para `NODE_RED_ADMIN_PASSWORD_HASH` no `.env` (entre aspas
+simples, pois o valor contém `$`) e rode `./scripts/deploy.sh` novamente.
 
 ## 8. Redeploy / atualização
 

@@ -4,10 +4,21 @@ module.exports = {
 
     uiPort: process.env.PORT || 1880,
 
-    // Editor de flows acessível apenas em /admin-red (não linkado publicamente
-    // pelo Nginx — ver docs/deploy.md para acesso via túnel SSH).
+    // Editor de flows em /admin-red, exposto via HTTPS (proxy do Nginx) e
+    // protegido por login — ver docs/deploy.md.
     httpAdminRoot: "/admin-red",
     httpNodeRoot: "/",
+
+    adminAuth: {
+        type: "credentials",
+        users: [
+            {
+                username: process.env.NODE_RED_ADMIN_USER || "admin",
+                password: process.env.NODE_RED_ADMIN_PASSWORD_HASH,
+                permissions: "*"
+            }
+        ]
+    },
 
     // Serve o portal web estático (web/) diretamente pelo Node-RED
     httpStatic: "/data/web",
