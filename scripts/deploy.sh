@@ -14,6 +14,11 @@ set +a
 
 mkdir -p nodered/data mosquitto/data mosquitto/log
 
+# O container node-red roda como uid 1000; a pasta precisa pertencer a ele
+# para o Node-RED conseguir escrever (node_modules, flows_cred.json etc.),
+# mas para (re)gerar o flows.json aqui a gente precisa poder escrever nela.
+sudo chown -R "$(id -u):$(id -g)" nodered/data
+
 # Renderiza o flows.template.json com as credenciais do .env (arquivo final
 # fica em nodered/data/, fora do git)
 sed \
@@ -23,6 +28,8 @@ sed \
     -e "s/__PG_USER__/${PG_USER}/g" \
     -e "s/__PG_PASSWORD__/${PG_PASSWORD}/g" \
     nodered/flows.template.json > nodered/data/flows.json
+
+sudo chown -R 1000:1000 nodered/data
 
 docker compose pull
 docker compose up -d --build
