@@ -1,0 +1,68 @@
+[
+    {
+        "id": "cfg_mqtt",
+        "type": "mqtt-broker",
+        "name": "SmartPark Mosquitto",
+        "broker": "smartpark_mosquitto",
+        "port": "1883",
+        "clientid": "nodered_smartpark",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "cfg_pg",
+        "type": "postgreSQLConfig",
+        "name": "SmartPark Postgres",
+        "host": "__PG_HOST__",
+        "port": "__PG_PORT__",
+        "database": "__PG_DATABASE__",
+        "ssl": false,
+        "max": 10,
+        "min": 1,
+        "idle": 1000,
+        "connectionTimeout": 10000,
+        "user": "__PG_USER__",
+        "password": "__PG_PASSWORD__"
+    },
+
+    { "id": "t1", "type": "tab", "label": "Flow 1 - Processador IoT & Persistência", "disabled": false, "info": "Escuta estacionamento/vagas/status, persiste no Postgres e publica o resumo consolidado." },
+
+    { "id": "t1_mqtt_in", "type": "mqtt in", "z": "t1", "name": "IN estacionamento/vagas/status", "topic": "estacionamento/vagas/status", "qos": "1", "datatype": "auto-detect", "broker": "cfg_mqtt", "x": 190, "y": 80, "wires": [["t1_json"]] },
+    { "id": "t1_json", "type": "json", "z": "t1", "name": "", "property": "payload", "action": "", "pretty": false, "x": 400, "y": 80, "wires": [["t1_prep_persist"]] },
+    { "id": "t1_prep_persist", "type": "function", "z": "t1", "name": "Preparar params UPDATE / INSERT", "func": "const data = msg.payload;\nif (!data || !data.vaga_id) {\n    return [null, null];\n}\n\nconst ocupada = data.ocupada === true;\n\nconst updateMsg = { payload: [ocupada, data.vaga_id] };\nconst insertMsg = { payload: [data.vaga_id, ocupada] };\n\nreturn [updateMsg, insertMsg];", "outputs": 2, "noerr": 0, "x": 430, "y": 160, "wires": [["t1_pg_update"], ["t1_pg_insert"]] },
+    { "id": "t1_pg_update", "type": "postgreSQL", "z": "t1", "name": "UPDATE vagas", "query": "UPDATE vagas SET ocupada = $1, atualizado_em = NOW() WHERE id = $2", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 690, "y": 140, "wires": [["t1_pg_resumo"]] },
+    { "id": "t1_pg_insert", "type": "postgreSQL", "z": "t1", "name": "INSERT historico_ocupacao", "query": "INSERT INTO historico_ocupacao (vaga_id, ocupada) VALUES ($1, $2)", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 710, "y": 200, "wires": [[]] },
+    { "id": "t1_pg_resumo", "type": "postgreSQL", "z": "t1", "name": "SELECT vagas (para resumo)", "query": "SELECT id, andar, preferencial, ocupada FROM vagas ORDER BY id ASC", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 700, "y": 320, "wires": [["t1_build_resumo"]] },
+    { "id": "t1_build_resumo", "type": "function", "z": "t1", "name": "Calcular resumo + alerta", "func": "const rows = msg.payload || [];\nconst total = rows.length;\nconst ocupadas = rows.filter(r => r.ocupada).length;\nconst livres = total - ocupadas;\nconst taxa = total ? Math.round((ocupadas / total) * 1000) / 10 : 0;\n\nconst porAndar = {};\nrows.forEach(r => {\n    porAndar[r.andar] = porAndar[r.andar] || { total: 0, ocupadas: 0, livres: 0 };\n    porAndar[r.andar].total++;\n    if (r.ocupada) porAndar[r.andar].ocupadas++; else porAndar[r.andar].livres++;\n});\n\nconst resumo = {\n    livres, ocupadas, total,\n    taxa_ocupacao: taxa,\n    por_andar: porAndar,\n    atualizado_em: new Date().toISOString()\n};\n\nconst preferenciaisOcupadas = rows.filter(r => r.preferencial && r.ocupada).map(r => r.id);\n\nlet alerta = null;\nif (total > 0 && livres === 0) {\n    alerta = { nivel: \"critico\", mensagem: \"LOTADO\", timestamp: new Date().toISOString() };\n} else if (preferenciaisOcupadas.length > 0) {\n    alerta = { nivel: \"atencao\", mensagem: \"Alerta: Vaga PCD ocupada sem autorização!\", vagas: preferenciaisOcupadas, timestamp: new Date().toISOString() };\n}\n\nreturn [{ payload: resumo }, alerta ? { payload: alerta } : null];", "outputs": 2, "noerr": 0, "x": 660, "y": 400, "wires": [["t1_mqtt_out_resumo"], ["t1_mqtt_out_alerta"]] },
+    { "id": "t1_mqtt_out_resumo", "type": "mqtt out", "z": "t1", "name": "OUT estacionamento/resumo", "topic": "estacionamento/resumo", "qos": "1", "retain": "true", "broker": "cfg_mqtt", "x": 970, "y": 380, "wires": [] },
+    { "id": "t1_mqtt_out_alerta", "type": "mqtt out", "z": "t1", "name": "OUT estacionamento/alerta", "topic": "estacionamento/alerta", "qos": "1", "retain": "false", "broker": "cfg_mqtt", "x": 970, "y": 440, "wires": [] },
+
+    { "id": "t2", "type": "tab", "label": "Flow 2 - Simulador Backend (Publisher Alternativo)", "disabled": false, "info": "A cada 15s sorteia uma vaga, inverte o estado e publica no mesmo tópico do Wokwi — valida o pipeline mesmo sem o simulador físico ativo." },
+
+    { "id": "t2_inject", "type": "inject", "z": "t2", "name": "A cada 15s", "props": [{ "p": "payload" }], "repeat": "15", "crontab": "", "once": true, "onceDelay": "5", "topic": "", "payload": "", "payloadType": "date", "x": 180, "y": 100, "wires": [["t2_pick_vaga"]] },
+    { "id": "t2_pick_vaga", "type": "function", "z": "t2", "name": "Sortear vaga", "func": "const ids = [\"A01\",\"A02\",\"A03\",\"A04\",\"A05\",\"B01\",\"B02\",\"B03\",\"B04\",\"B05\",\"C01\",\"C02\",\"C03\",\"C04\",\"C05\"];\nconst id = ids[Math.floor(Math.random() * ids.length)];\nmsg.payload = [id];\nreturn msg;", "outputs": 1, "noerr": 0, "x": 380, "y": 100, "wires": [["t2_pg_select"]] },
+    { "id": "t2_pg_select", "type": "postgreSQL", "z": "t2", "name": "SELECT estado atual", "query": "SELECT id, andar, preferencial, ocupada FROM vagas WHERE id = $1", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 600, "y": 100, "wires": [["t2_invert"]] },
+    { "id": "t2_invert", "type": "function", "z": "t2", "name": "Inverter estado + montar payload", "func": "const row = (msg.payload || [])[0];\nif (!row) return null;\n\nconst novoEstado = !row.ocupada;\nmsg.payload = JSON.stringify({\n    vaga_id: row.id,\n    ocupada: novoEstado,\n    preferencial: row.preferencial,\n    andar: row.andar\n});\nreturn msg;", "outputs": 1, "noerr": 0, "x": 840, "y": 100, "wires": [["t2_mqtt_out"]] },
+    { "id": "t2_mqtt_out", "type": "mqtt out", "z": "t2", "name": "OUT estacionamento/vagas/status", "topic": "estacionamento/vagas/status", "qos": "0", "retain": "false", "broker": "cfg_mqtt", "x": 1100, "y": 100, "wires": [] },
+
+    { "id": "t3", "type": "tab", "label": "Flow 3 - API HTTP", "disabled": false, "info": "GET /api/vagas e POST /api/favorita para o Portal do Cliente." },
+
+    { "id": "t3_get_vagas", "type": "http in", "z": "t3", "name": "GET /api/vagas", "url": "/api/vagas", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["t3_pg_all"]] },
+    { "id": "t3_pg_all", "type": "postgreSQL", "z": "t3", "name": "SELECT * FROM vagas", "query": "SELECT * FROM vagas ORDER BY id ASC", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 400, "y": 100, "wires": [["t3_resp_vagas"]] },
+    { "id": "t3_resp_vagas", "type": "http response", "z": "t3", "name": "200 JSON", "statusCode": "", "headers": {}, "x": 620, "y": 100, "wires": [] },
+
+    { "id": "t3_post_favorita", "type": "http in", "z": "t3", "name": "POST /api/favorita", "url": "/api/favorita", "method": "post", "upload": false, "swaggerDoc": "", "x": 180, "y": 220, "wires": [["t3_prep_fav"]] },
+    { "id": "t3_prep_fav", "type": "function", "z": "t3", "name": "Validar vaga_id", "func": "const vagaId = msg.payload && msg.payload.vaga_id;\n\nif (!vagaId) {\n    msg.statusCode = 400;\n    msg.payload = { error: \"vaga_id é obrigatório\" };\n    return [null, msg];\n}\n\nmsg.payload = [vagaId];\nreturn [msg, null];", "outputs": 2, "noerr": 0, "x": 410, "y": 220, "wires": [["t3_pg_fav"], ["t3_resp_fav"]] },
+    { "id": "t3_pg_fav", "type": "postgreSQL", "z": "t3", "name": "UPDATE contador_favorita", "query": "UPDATE vagas SET contador_favorita = contador_favorita + 1 WHERE id = $1 RETURNING *", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 650, "y": 200, "wires": [["t3_prep_fav_resp"]] },
+    { "id": "t3_prep_fav_resp", "type": "function", "z": "t3", "name": "Extrair linha atualizada", "func": "msg.payload = (msg.payload || [])[0] || { error: \"vaga não encontrada\" };\nreturn msg;", "outputs": 1, "noerr": 0, "x": 890, "y": 200, "wires": [["t3_resp_fav"]] },
+    { "id": "t3_resp_fav", "type": "http response", "z": "t3", "name": "200/400 JSON", "statusCode": "", "headers": {}, "x": 900, "y": 260, "wires": [] },
+
+    { "id": "t4", "type": "tab", "label": "Flow 4 - Servidor do Portal do Cliente", "disabled": false, "info": "Serve o Portal Web (também disponível em / via httpStatic)." },
+
+    { "id": "t4_get_vagas_page", "type": "http in", "z": "t4", "name": "GET /vagas", "url": "/vagas", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["t4_serve_portal"]] },
+    { "id": "t4_serve_portal", "type": "function", "z": "t4", "name": "Ler web/index.html", "func": "try {\n    const fs = global.get('fs') || require('fs');\n    const html = fs.readFileSync('/data/web/index.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar portal: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 400, "y": 100, "wires": [["t4_resp_portal"]] },
+    { "id": "t4_resp_portal", "type": "http response", "z": "t4", "name": "200 HTML", "statusCode": "", "headers": {}, "x": 620, "y": 100, "wires": [] }
+]

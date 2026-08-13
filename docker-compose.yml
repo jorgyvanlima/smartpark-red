@@ -1,0 +1,63 @@
+services:
+  smartpark_mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smartpark_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1884:1883" # broker exposto publicamente para o Wokwi (ESP32) e app mobile
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - smartpark_internal
+    mem_limit: 96m
+
+  smartpark_postgres:
+    image: postgres:15-alpine
+    container_name: smartpark_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - smartpark_pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - smartpark_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: 256m
+
+  smartpark_nodered:
+    image: nodered/node-red:latest
+    container_name: smartpark_nodered
+    restart: unless-stopped
+    depends_on:
+      - smartpark_postgres
+      - smartpark_mosquitto
+    environment:
+      NODE_RED_CREDENTIAL_SECRET: ${NODE_RED_CREDENTIAL_SECRET}
+      TZ: America/Sao_Paulo
+    volumes:
+      - ./nodered/data:/data
+      - ./nodered/settings.js:/data/settings.js:ro
+      - ./nodered/package.json:/data/package.json:ro
+      - ./web:/data/web:ro
+    networks:
+      - smartpark_internal
+      - mcorecloud-network # rede externa do nginx-master, para o reverse proxy alcançar este container
+    mem_limit: 320m
+
+volumes:
+  smartpark_pgdata:
+
+networks:
+  smartpark_internal:
+    driver: bridge
+  mcorecloud-network:
+    external: true
