@@ -26,7 +26,9 @@ module.exports = {
         projects: { enabled: false }
     },
 
-    functionGlobalContext: {},
+    functionGlobalContext: {
+        fs: require("fs")
+    },
 
     exportGlobalContextKeys: false,
 

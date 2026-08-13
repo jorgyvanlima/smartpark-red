@@ -63,6 +63,6 @@
     { "id": "t4", "type": "tab", "label": "Flow 4 - Servidor do Portal do Cliente", "disabled": false, "info": "Serve o Portal Web (também disponível em / via httpStatic)." },
 
     { "id": "t4_get_vagas_page", "type": "http in", "z": "t4", "name": "GET /vagas", "url": "/vagas", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["t4_serve_portal"]] },
-    { "id": "t4_serve_portal", "type": "function", "z": "t4", "name": "Ler web/index.html", "func": "try {\n    const fs = global.get('fs') || require('fs');\n    const html = fs.readFileSync('/data/web/index.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar portal: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 400, "y": 100, "wires": [["t4_resp_portal"]] },
+    { "id": "t4_serve_portal", "type": "function", "z": "t4", "name": "Ler web/index.html", "func": "try {\n    const fs = global.get('fs');\n    const html = fs.readFileSync('/data/web/index.html', 'utf8');\n    msg.payload = html;\n    msg.headers = { 'Content-Type': 'text/html; charset=utf-8' };\n} catch (e) {\n    msg.statusCode = 500;\n    msg.payload = 'Erro ao carregar portal: ' + e.message;\n}\nreturn msg;", "outputs": 1, "noerr": 0, "x": 400, "y": 100, "wires": [["t4_resp_portal"]] },
     { "id": "t4_resp_portal", "type": "http response", "z": "t4", "name": "200 HTML", "statusCode": "", "headers": {}, "x": 620, "y": 100, "wires": [] }
 ]
