@@ -30,7 +30,7 @@
 
     { "id": "t1", "type": "tab", "label": "Flow 1 - Processador IoT & Persistência", "disabled": false, "info": "Escuta estacionamento/vagas/status, persiste no Postgres e publica o resumo consolidado." },
 
-    { "id": "t1_mqtt_in", "type": "mqtt in", "z": "t1", "name": "IN estacionamento/vagas/status", "topic": "estacionamento/vagas/status", "qos": "1", "datatype": "auto-detect", "broker": "cfg_mqtt", "x": 190, "y": 80, "wires": [["t1_json"]] },
+    { "id": "t1_mqtt_in", "type": "mqtt in", "z": "t1", "name": "IN estacionamento/vagas/status", "topic": "estacionamento/vagas/status", "qos": "1", "datatype": "utf8", "broker": "cfg_mqtt", "x": 190, "y": 80, "wires": [["t1_json"]] },
     { "id": "t1_json", "type": "json", "z": "t1", "name": "", "property": "payload", "action": "", "pretty": false, "x": 400, "y": 80, "wires": [["t1_prep_persist"]] },
     { "id": "t1_prep_persist", "type": "function", "z": "t1", "name": "Preparar params UPDATE / INSERT", "func": "const data = msg.payload;\nif (!data || !data.vaga_id) {\n    return [null, null];\n}\n\nconst ocupada = data.ocupada === true;\n\nconst updateMsg = { payload: data, params: [ocupada, data.vaga_id] };\nconst insertMsg = { payload: data, params: [data.vaga_id, ocupada] };\n\nreturn [updateMsg, insertMsg];", "outputs": 2, "noerr": 0, "x": 430, "y": 160, "wires": [["t1_pg_update"], ["t1_pg_insert"]] },
     { "id": "t1_pg_update", "type": "postgresql", "z": "t1", "name": "UPDATE vagas", "query": "UPDATE vagas SET ocupada = $1, atualizado_em = NOW() WHERE id = $2", "postgreSQLConfig": "cfg_pg", "split": false, "rowsPerMsg": 1, "outputs": 1, "x": 690, "y": 140, "wires": [["t1_pg_resumo"]] },
