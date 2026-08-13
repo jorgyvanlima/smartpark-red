@@ -304,11 +304,11 @@ Projeto desenvolvido para a disciplina **Tecnologias de Comunicação em IoT**
 — Curso de Especialização em Sistemas de Segurança Integrada da Informação e
 Cibersegurança, **UFPA** (Belém-PA, 2026).
 
-**Grupo D**
-Arienilce Sacramento Gonçalves · Clisciano Nascimento Souza ·
-Flávio Alexandre Souza Nunes *(VPS de hospedagem)* ·
-**Jorgyvan Braga Lima** *(repositório e implantação do projeto)* ·
-Józimo Azevedo Botelho · Osvaldo José Rodrigues Neves · Thiago Bitar Cruz ·
-Wallace Pablo Rocha da Cruz · Vinícius Antônio de Paula Valente · Josiane Moraes
+**Grupo D**<p>
+Arienilce Sacramento Gonçalves <p>· Clisciano Nascimento Souza ·
+Flávio Alexandre Souza Nunes  <p>·
+**Jorgyvan Braga Lima** <p> ·
+Józimo Azevedo Botelho <p>· Osvaldo José Rodrigues Neves <p>· Thiago Bitar Cruz<p> ·
+Wallace Pablo Rocha da Cruz <p>· Vinícius Antônio de Paula Valente <p>· Josiane Moraes
 
-Orientação: Dr. Fabrício José Brito Barros · Me. Joel Alison Ribeiro Carvalho
+Orientação:<p> Dr. Fabrício José Brito Barros · <p>Me. Joel Alison Ribeiro Carvalho
