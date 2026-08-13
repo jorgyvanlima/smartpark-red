@@ -105,6 +105,37 @@ Assinaturas recomendadas:
 - `estacionamento/resumo` → widget "Cards"/"Texto" com os contadores livres/ocupadas.
 - `estacionamento/alerta` → widget de notificação/push (`LOTADO`, vaga PCD ocupada).
 - `estacionamento/vagas/status` → widget de log/histórico de eventos.
+- `estacionamento/vagas/<ID>/status` → **um widget colorido por vaga** (ver seção 6.1).
+
+> ⚠️ O app **myMQTT** (o "cliente" simples, só de log de texto) **não tem
+> widgets coloridos** — ele só mostra mensagens como texto puro. Para ter os
+> quadradinhos verde/vermelho/azul por vaga, use o **IoT MQTT Panel** ou o
+> **MQTT Dash**.
+
+### 6.1 Card colorido por vaga (IoT MQTT Panel)
+
+Cada vaga publica seu próprio tópico retido `estacionamento/vagas/<ID>/status`
+com um valor simples: `LIVRE`, `OCUPADA` ou `OCUPADA_PCD`. Para criar um card
+por vaga:
+
+1. Abra o IoT MQTT Panel → sua conexão (host `smartpark-red.sytes.net`,
+   porta `1884`) → **"+"** → **New Panel** (crie um painel, ex: "Andar 1").
+2. Dentro do painel, toque em **"+"** → escolha o widget **"LED"** (ou
+   "Simple Text"/"Text View" se quiser mostrar o texto além da cor).
+3. Configure o widget:
+   - **Topic**: `estacionamento/vagas/A01/status` (troque `A01` pela vaga)
+   - **Payload ON**: `OCUPADA` → cor vermelha
+   - **Payload OFF**: `LIVRE` → cor verde
+   - Para as vagas preferenciais (`A05`, `B05`, `C05`), adicione uma segunda
+     regra de cor (se o app permitir múltiplos valores) para
+     `OCUPADA_PCD` → azul; caso o widget só aceite 2 estados, use o widget
+     **"Text"** com regra de cor por valor (`LIVRE`=verde, `OCUPADA`=vermelho,
+     `OCUPADA_PCD`=azul).
+4. Repita para as 15 vagas (`A01`...`A05`, `B01`...`B05`, `C01`...`C05`),
+   organizando em 3 painéis (um por andar) para ficar visualmente igual ao
+   estacionamento físico.
+5. Como o tópico é retido, os cards já aparecem com a cor certa assim que
+   você abre o app — não precisa esperar nenhuma vaga mudar de estado.
 
 ## 7. Editor do Node-RED (via navegador, com login)
 

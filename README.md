@@ -202,6 +202,7 @@ O middleware (`nodered/flows.template.json`) organiza a lógica em 4 flows:
 | `estacionamento/vagas/status` | ESP32 / simulador Node-RED | 0–1 | não | `{"vaga_id":"A01","ocupada":true,"preferencial":false,"andar":"Andar 1"}` |
 | `estacionamento/resumo` | Node-RED | 1 | **sim** | `{"livres":11,"ocupadas":4,"total":15,"taxa_ocupacao":26.7,"por_andar":{...}}` |
 | `estacionamento/alerta` | Node-RED | 1 | não | `{"nivel":"atencao","mensagem":"Alerta: Vaga PCD ocupada sem autorização!","vagas":["A05"]}` |
+| `estacionamento/vagas/<ID>/status` | Node-RED | 1 | **sim** | payload simples `LIVRE` / `OCUPADA` / `OCUPADA_PCD` — um tópico por vaga (ex: `estacionamento/vagas/A01/status`), pensado para widgets/cards individuais em apps como IoT MQTT Panel |
 
 O retain em `estacionamento/resumo` garante que qualquer assinante novo
 (app mobile, painel) recebe o último estado consolidado imediatamente ao se
