@@ -137,6 +137,21 @@ por vaga:
 5. Como o tópico é retido, os cards já aparecem com a cor certa assim que
    você abre o app — não precisa esperar nenhuma vaga mudar de estado.
 
+### 6.2 Monitorar cada cenário separadamente
+
+Além do tópico consolidado, cada vaga também publica um tópico isolado por
+cenário (mesma lógica da seção 6.1, troque só o prefixo):
+
+- **Cenário 1 (Node-RED)**: `estacionamento/simulador/vagas/A01/status`
+- **Cenário 2 (Wokwi/ESP32)**: `estacionamento/wokwi/vagas/A01/status`
+
+Monte 2 conjuntos de painéis no app (ou 2 conexões salvas) para comparar as
+duas vias lado a lado — é a mesma ideia usada nos painéis web
+`/painel/simulador` e `/painel/wokwi`. Os resumos e alertas também têm
+versão por cenário: `estacionamento/simulador/resumo`,
+`estacionamento/wokwi/resumo`, `estacionamento/simulador/alerta`,
+`estacionamento/wokwi/alerta`.
+
 ## 7. Editor do Node-RED (via navegador, com login)
 
 O editor de flows fica em `https://smartpark-red.sytes.net/admin-red`, atrás do
@@ -161,6 +176,16 @@ cd ~/smartpark-red
 git pull
 ./scripts/deploy.sh
 ```
+
+> Os arquivos em `postgres/init/*.sql` só rodam automaticamente na
+> **primeira** vez que o volume do Postgres é criado (volume vazio). Se você
+> adicionar um novo `.sql` ali num banco que já existe (como aconteceu com
+> `03_scenarios.sql`), aplique manualmente uma vez:
+> ```bash
+> docker exec -i smartpark_postgres psql -U <PG_USER> -d <PG_DATABASE> < postgres/init/03_scenarios.sql
+> ```
+> e depois `docker compose restart smartpark_nodered` para os novos flows
+> pegarem as tabelas.
 
 ## 9. Memória da VPS
 

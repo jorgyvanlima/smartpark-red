@@ -125,13 +125,14 @@ void conectarMqtt() {
 }
 
 void publicarStatus(int idx) {
-    StaticJsonDocument<192> doc;
+    StaticJsonDocument<256> doc;
     doc["vaga_id"] = vagas[idx].id;
     doc["ocupada"] = vagas[idx].ocupada;
     doc["preferencial"] = vagas[idx].preferencial;
     doc["andar"] = vagas[idx].andar;
+    doc["origem"] = "wokwi"; // identifica a via física para o Cenário 2 (ver Flow 1 no Node-RED)
 
-    char payload[192];
+    char payload[256];
     size_t n = serializeJson(doc, payload);
 
     mqttClient.publish(TOPIC_STATUS, (const uint8_t *)payload, n, false);

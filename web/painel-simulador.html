@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartPark-RED · Cenário 1 (Simulador Node-RED)</title>
+<style>
+    :root{
+        --bg: #05070d;
+        --panel: #0b0f1a;
+        --border: #1c2436;
+        --text: #e7ecf5;
+        --muted: #7c8aa8;
+        --green: #17ff9e;
+        --red: #ff3b6e;
+        --blue: #3ba7ff;
+        --accent: #a78bfa;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+        margin:0;
+        background:
+            radial-gradient(circle at 15% 0%, #1a1030 0%, transparent 45%),
+            radial-gradient(circle at 85% 10%, #0e1730 0%, transparent 40%),
+            var(--bg);
+        color:var(--text);
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+        min-height:100%;
+    }
+
+    header{ padding:28px 24px 12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .brand .logo{
+        width:42px;height:42px;border-radius:12px;
+        background:linear-gradient(135deg,var(--accent),var(--blue));
+        display:flex;align-items:center;justify-content:center;
+        font-weight:800;color:#0a0716;font-size:16px;
+        box-shadow:0 0 24px rgba(167,139,250,.45);
+    }
+    .brand h1{ font-size:19px; margin:0; letter-spacing:.4px; }
+    .brand small{ color:var(--muted); font-size:11px; letter-spacing:1.2px; text-transform:uppercase; }
+
+    .topnav{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .topnav a{
+        color:var(--muted); text-decoration:none; font-size:12px;
+        padding:8px 14px; border-radius:999px; border:1px solid var(--border);
+        transition:.15s ease;
+    }
+    .topnav a:hover{ color:var(--text); border-color:var(--accent); }
+    .topnav a.active{ color:var(--accent); border-color:var(--accent); }
+
+    .status-pill{
+        display:flex; align-items:center; gap:8px;
+        padding:8px 14px; border-radius:999px;
+        background:var(--panel); border:1px solid var(--border);
+        font-size:12px; color:var(--muted);
+    }
+    .dot{ width:8px;height:8px;border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); }
+    .dot.offline{ background:var(--red); box-shadow:0 0 10px var(--red); }
+
+    main{ padding:8px 24px 60px; max-width:1280px; margin:0 auto; }
+
+    .scenario-badge{
+        display:inline-flex; align-items:center; gap:8px; margin:14px 0 18px;
+        padding:8px 16px; border-radius:999px; font-size:12px;
+        background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.4); color:var(--accent);
+    }
+
+    .bento{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:16px; margin:12px 0 24px; }
+    @media (max-width:760px){ .bento{ grid-template-columns:1fr; } }
+    .card{
+        background:linear-gradient(180deg, var(--panel) 0%, #090c15 100%);
+        border:1px solid var(--border); border-radius:18px; padding:20px 22px;
+    }
+    .stat .label{ color:var(--muted); font-size:12px; letter-spacing:1.2px; text-transform:uppercase; }
+    .stat .value{ font-size:46px; font-weight:800; margin-top:6px; line-height:1; }
+    .stat.livres .value{ color:var(--green); text-shadow:0 0 26px rgba(23,255,158,.5); }
+    .stat.ocupadas .value{ color:var(--red); text-shadow:0 0 26px rgba(255,59,110,.5); }
+    .stat.taxa .value{ color:var(--accent); text-shadow:0 0 26px rgba(167,139,250,.5); }
+    .stat .sub{ margin-top:8px; color:var(--muted); font-size:12px; }
+
+    .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
+    .vaga{ border-radius:14px; padding:14px; text-align:center; background:var(--panel); border:1px solid var(--border); transition:.15s ease; }
+    .vaga:hover{ transform:translateY(-2px); }
+    .vaga.livre{ border-color:rgba(23,255,158,.4); box-shadow:inset 0 0 0 1px rgba(23,255,158,.08); }
+    .vaga.ocupada{ border-color:rgba(255,59,110,.4); box-shadow:inset 0 0 0 1px rgba(255,59,110,.08); }
+    .vaga.preferencial-ocupada{ border-color:rgba(59,167,255,.5); box-shadow:inset 0 0 0 1px rgba(59,167,255,.1); }
+    .vaga .id{ font-size:19px; font-weight:800; }
+    .vaga.livre .id{ color:var(--green); }
+    .vaga.ocupada .id{ color:var(--red); }
+    .vaga.preferencial-ocupada .id{ color:var(--blue); }
+    .vaga .andar{ color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.6px; margin-top:2px; }
+    .vaga .st{ font-size:11px; margin-top:8px; font-weight:600; }
+    .vaga.livre .st{ color:var(--green); }
+    .vaga.ocupada .st{ color:var(--red); }
+    .vaga.preferencial-ocupada .st{ color:var(--blue); }
+
+    footer{ text-align:center; color:var(--muted); font-size:11px; padding:20px; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <div class="logo">🔁</div>
+        <div>
+            <h1>Cenário 1 · Simulador Node-RED</h1>
+            <small>Publisher de backup · dados isolados</small>
+        </div>
+    </div>
+    <div class="topnav">
+        <a href="/">← Home</a>
+        <a href="/painel">Painel Consolidado</a>
+        <a href="/painel/simulador" class="active">Cenário 1 (Simulador)</a>
+        <a href="/painel/wokwi">Cenário 2 (Wokwi)</a>
+        <a href="/monitor">Monitor MQTT</a>
+    </div>
+    <div class="status-pill"><span class="dot" id="connDot"></span><span id="connLabel">conectando…</span></div>
+</header>
+
+<main>
+    <span class="scenario-badge">🔁 Fonte: Node-RED (inject a cada 15s) · tabela <code>vagas_simulador</code></span>
+
+    <section class="bento">
+        <div class="card stat livres">
+            <div class="label">Vagas Livres</div>
+            <div class="value" id="statLivres">–</div>
+            <div class="sub">de <span id="statTotal">15</span> vagas totais</div>
+        </div>
+        <div class="card stat ocupadas">
+            <div class="label">Vagas Ocupadas</div>
+            <div class="value" id="statOcupadas">–</div>
+        </div>
+        <div class="card stat taxa">
+            <div class="label">Taxa de Ocupação</div>
+            <div class="value"><span id="statTaxa">–</span>%</div>
+        </div>
+    </section>
+
+    <div class="card">
+        <div class="grid" id="grid"></div>
+    </div>
+</main>
+
+<footer>SmartPark-RED · Cenário 1 (Simulador Node-RED) · tópicos MQTT em <code>estacionamento/simulador/#</code></footer>
+
+<script>
+const API_URL = "/api/vagas/simulador";
+const POLL_MS = 2000;
+
+function statusClasse(v){
+    if (!v.ocupada) return "livre";
+    if (v.preferencial) return "preferencial-ocupada";
+    return "ocupada";
+}
+function statusTexto(v){
+    if (!v.ocupada) return "Livre";
+    if (v.preferencial) return "Ocupada · PCD";
+    return "Ocupada";
+}
+
+function render(vagas){
+    const total = vagas.length;
+    const ocupadas = vagas.filter(v => v.ocupada).length;
+    const livres = total - ocupadas;
+    const taxa = total ? Math.round((ocupadas/total)*1000)/10 : 0;
+
+    document.getElementById("statLivres").textContent = livres;
+    document.getElementById("statOcupadas").textContent = ocupadas;
+    document.getElementById("statTaxa").textContent = taxa;
+    document.getElementById("statTotal").textContent = total;
+
+    document.getElementById("grid").innerHTML = vagas.map(v => `
+        <div class="vaga ${statusClasse(v)}">
+            <div class="id">${v.id}</div>
+            <div class="andar">${v.andar}</div>
+            <div class="st">${statusTexto(v)}</div>
+        </div>`).join("");
+}
+
+async function poll(){
+    try {
+        const res = await fetch(API_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        render(await res.json());
+        document.getElementById("connDot").classList.remove("offline");
+        document.getElementById("connLabel").textContent = "ao vivo";
+    } catch (e) {
+        document.getElementById("connDot").classList.add("offline");
+        document.getElementById("connLabel").textContent = "sem conexão";
+    }
+}
+poll();
+setInterval(poll, POLL_MS);
+</script>
+
+</body>
+</html>

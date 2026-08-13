@@ -124,14 +124,16 @@ hospedados na mesma máquina.
 docker-compose.yml            # mosquitto + postgres + node-red
 .env.example                  # copiar para .env com credenciais reais
 mosquitto/config/              # mosquitto.conf
-postgres/init/                 # 01_schema.sql, 02_seed.sql (rodam no 1º boot do container)
+postgres/init/                 # 01_schema.sql, 02_seed.sql, 03_scenarios.sql (rodam no 1º boot)
 nodered/
   ├─ settings.js               # editor protegido por login, portal estático, etc.
   ├─ package.json              # dependência node-red-contrib-postgresql
   └─ flows.template.json       # os 4 flows (credenciais são injetadas no deploy)
 web/
   ├─ index.html                  # Landing page (/) — visão geral + botões Painel / Admin
-  ├─ painel.html                  # Painel de vagas (/painel, alias /vagas) — High-Tech, dark neon
+  ├─ painel.html                  # Painel consolidado (/painel, alias /vagas)
+  ├─ painel-simulador.html         # Painel do Cenário 1 — Node-RED (/painel/simulador)
+  ├─ painel-wokwi.html             # Painel do Cenário 2 — Wokwi/ESP32 (/painel/wokwi)
   ├─ monitor.html                 # Monitor MQTT (/monitor) — MQTT sobre WebSocket ao vivo
   └─ vendor/mqtt.min.js            # cliente MQTT.js auto-hospedado (sem CDN)
 esp32/
@@ -166,7 +168,28 @@ CREATE TABLE historico_ocupacao (
 );
 ```
 
-As 15 vagas são semeadas automaticamente (`postgres/init/02_seed.sql`) com o
+`vagas` + `historico_ocupacao` são a visão **consolidada**, atualizada por
+qualquer uma das duas vias de publicação e usada pelo Portal do Cliente e pela
+API pública (`/api/vagas`). Para comprovar a independência das duas vias
+(requisito do escopo acadêmico), cada uma também grava numa trilha isolada,
+no mesmo banco `smartpark`, em tabelas próprias
+(`postgres/init/03_scenarios.sql`):
+
+```sql
+-- Cenário 1: Node-RED (publisher de backup)
+CREATE TABLE vagas_simulador (id, andar, pino_esp32, preferencial, ocupada, atualizado_em);
+CREATE TABLE historico_simulador (id, vaga_id, ocupada, timestamp);
+
+-- Cenário 2: Wokwi (ESP32, sensor físico simulado)
+CREATE TABLE vagas_wokwi (id, andar, pino_esp32, preferencial, ocupada, atualizado_em);
+CREATE TABLE historico_wokwi (id, vaga_id, ocupada, timestamp);
+```
+
+(mesma estrutura de `vagas`, sem `contador_favorita` — esse campo é específico
+do Portal do Cliente).
+
+As 15 vagas são semeadas automaticamente (`postgres/init/02_seed.sql`, e
+replicadas para as tabelas por cenário em `03_scenarios.sql`) com o
 mapeamento de pinos usado no firmware:
 
 | Vaga | Andar | Pino ESP32 | Preferencial |
@@ -183,17 +206,32 @@ mapeamento de pinos usado no firmware:
 O middleware (`nodered/flows.template.json`) organiza a lógica em 4 flows:
 
 1. **Processador IoT & Persistência** — `mqtt in` no tópico
-   `estacionamento/vagas/status` → parse JSON → `UPDATE vagas` +
-   `INSERT historico_ocupacao` → recalcula o resumo (`SELECT` agregando as 15
-   vagas) → publica `estacionamento/resumo` (retido) e, se lotado ou vaga PCD
-   ocupada, `estacionamento/alerta`.
+   `estacionamento/vagas/status` → parse JSON → dois ramos em paralelo:
+   - **Consolidado**: `UPDATE vagas` + `INSERT historico_ocupacao` →
+     recalcula o resumo geral → publica `estacionamento/resumo` (retido) e,
+     se lotado ou vaga PCD ocupada, `estacionamento/alerta`.
+   - **Por cenário**: lê o campo `origem` do payload (`"wokwi"` ou
+     `"simulador"`) e grava na tabela isolada correspondente
+     (`vagas_wokwi`/`vagas_simulador` + histórico), recalcula o resumo
+     **daquele cenário** e publica em `estacionamento/<cenário>/resumo`,
+     `estacionamento/<cenário>/alerta` e um tópico retido por vaga
+     (`estacionamento/<cenário>/vagas/<ID>/status`).
 2. **Simulador de backup** — `inject` a cada 15s → sorteia uma vaga → consulta
-   o estado atual no Postgres → inverte e publica no mesmo tópico do Wokwi
-   (o broker entrega de volta ao próprio Node-RED, reaproveitando o Flow 1).
-3. **API HTTP** — `GET /api/vagas` (lista completa) e `POST /api/favorita`
+   o estado atual no Postgres → inverte e publica no mesmo tópico do Wokwi,
+   marcando `"origem":"simulador"` no payload (o broker entrega de volta ao
+   próprio Node-RED, reaproveitando o Flow 1).
+3. **API HTTP** — `GET /api/vagas` (consolidado), `GET /api/vagas/simulador`
+   e `GET /api/vagas/wokwi` (por cenário), e `POST /api/favorita`
    (`{"vaga_id":"A01"}`, incrementa o contador).
 4. **Servidor do portal** — serve a landing (`/`, estática), o painel
-   (`GET /painel`, alias `GET /vagas`) e o monitor MQTT (`GET /monitor`).
+   consolidado (`GET /painel`, alias `GET /vagas`), os painéis por cenário
+   (`GET /painel/simulador`, `GET /painel/wokwi`) e o monitor MQTT
+   (`GET /monitor`).
+
+O ESP32 identifica sua origem publicando `"origem":"wokwi"` no payload (ver
+`esp32/sketch.ino`); o simulador do Node-RED publica `"origem":"simulador"`.
+Mensagens sem esse campo (compatibilidade com versões antigas do firmware)
+são tratadas como `"wokwi"` por padrão.
 
 ## Tópicos MQTT
 
@@ -203,34 +241,47 @@ O middleware (`nodered/flows.template.json`) organiza a lógica em 4 flows:
 | `estacionamento/resumo` | Node-RED | 1 | **sim** | `{"livres":11,"ocupadas":4,"total":15,"taxa_ocupacao":26.7,"por_andar":{...}}` |
 | `estacionamento/alerta` | Node-RED | 1 | não | `{"nivel":"atencao","mensagem":"Alerta: Vaga PCD ocupada sem autorização!","vagas":["A05"]}` |
 | `estacionamento/vagas/<ID>/status` | Node-RED | 1 | **sim** | payload simples `LIVRE` / `OCUPADA` / `OCUPADA_PCD` — um tópico por vaga (ex: `estacionamento/vagas/A01/status`), pensado para widgets/cards individuais em apps como IoT MQTT Panel |
+| `estacionamento/<cenário>/resumo` | Node-RED | 1 | **sim** | idem `estacionamento/resumo`, mas só com dados daquele cenário. `<cenário>` = `simulador` ou `wokwi` |
+| `estacionamento/<cenário>/alerta` | Node-RED | 1 | não | idem `estacionamento/alerta`, isolado por cenário |
+| `estacionamento/<cenário>/vagas/<ID>/status` | Node-RED | 1 | **sim** | `LIVRE`/`OCUPADA`/`OCUPADA_PCD` isolado por cenário — cards separados por fonte no IoT MQTT Panel |
 
 O retain em `estacionamento/resumo` garante que qualquer assinante novo
 (app mobile, painel) recebe o último estado consolidado imediatamente ao se
-conectar, sem esperar o próximo evento.
+conectar, sem esperar o próximo evento. O mesmo vale para os tópicos por
+cenário.
 
 ## API REST
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/api/vagas` | Lista as 15 vagas com status atual |
+| `GET` | `/api/vagas` | Lista as 15 vagas (visão consolidada) |
+| `GET` | `/api/vagas/simulador` | Vagas do Cenário 1 (Node-RED) |
+| `GET` | `/api/vagas/wokwi` | Vagas do Cenário 2 (ESP32/Wokwi) |
 | `POST` | `/api/favorita` | `{"vaga_id":"A01"}` → incrementa `contador_favorita` |
 | `GET` | `/` | Landing page do projeto |
-| `GET` | `/painel` (alias `/vagas`) | Painel de vagas em tempo real |
+| `GET` | `/painel` (alias `/vagas`) | Painel de vagas consolidado, em tempo real |
+| `GET` | `/painel/simulador` | Painel do Cenário 1 (Node-RED) |
+| `GET` | `/painel/wokwi` | Painel do Cenário 2 (Wokwi/ESP32) |
 | `GET` | `/monitor` | Monitor MQTT ao vivo (WebSocket) |
 
 ## Portal web do cliente
 
-Três páginas HTML/CSS/JS vanilla (sem frameworks), tema **dark neon high-tech**,
-servidas pelo próprio Node-RED (Flow 4):
+Cinco páginas HTML/CSS/JS vanilla (sem frameworks), tema **dark neon
+high-tech**, servidas pelo próprio Node-RED (Flow 4):
 
 - **`/` — Landing**: visão geral do projeto (a mesma informação deste README,
   resumida), arquitetura, stack técnica, tópicos MQTT, e os 2 botões de acesso
   rápido: **Painel de Vagas** e **Admin Node-RED**.
-- **`/painel` (alias `/vagas`) — Painel de Vagas**: bento grid com vagas
+- **`/painel` (alias `/vagas`) — Painel Consolidado**: bento grid com vagas
   livres/ocupadas/taxa de ocupação, filtros por andar e por PCD, grade das 15
   vagas coloridas por status, favoritar vaga (`localStorage` +
   `POST /api/favorita`), atualização automática a cada 2s via `fetch` em
   `/api/vagas`.
+- **`/painel/simulador` — Cenário 1**: mesmo estilo visual, mas mostrando
+  apenas os dados que vieram do publisher de backup do Node-RED
+  (`/api/vagas/simulador`), isolados na tabela `vagas_simulador`.
+- **`/painel/wokwi` — Cenário 2**: idem, só com os dados publicados pelo
+  ESP32 no Wokwi (`/api/vagas/wokwi`, tabela `vagas_wokwi`).
 - **`/monitor` — Monitor MQTT**: conecta direto no broker via **MQTT sobre
   WebSocket** (`wss://.../mqtt-ws`, proxiado pelo Nginx até o listener 9001 do
   Mosquitto) usando o cliente `mqtt.js` auto-hospedado em `web/vendor/`. Assina
@@ -238,6 +289,11 @@ servidas pelo próprio Node-RED (Flow 4):
   tempo real — a versão web do que o app **myMQTT** mostra no celular. A
   própria página traz a tabela de host/porta/tópicos para quem preferir
   configurar o myMQTT/MQTT Dash em vez de usar o navegador.
+
+Os painéis por cenário existem para comprovar, de forma visual e
+independente, que as duas vias de publicação (sensor físico simulado no
+Wokwi e publisher de backup no Node-RED) realmente operam — e persistem —
+de forma isolada uma da outra, sem que uma mascare falhas da outra.
 
 ## Firmware ESP32 / Wokwi
 
@@ -267,7 +323,11 @@ Configuração recomendada para **IoT MQTT Panel** / MQTT Dash:
 | TLS | desligado (MQTT puro) |
 
 Assinaturas: `estacionamento/resumo` (contadores), `estacionamento/alerta`
-(notificações), `estacionamento/vagas/status` (log de eventos).
+(notificações), `estacionamento/vagas/status` (log de eventos). Para
+acompanhar só um cenário, assine `estacionamento/simulador/#` (Node-RED) ou
+`estacionamento/wokwi/#` (ESP32) em vez do tópico consolidado. Passo a passo
+completo (incluindo cards coloridos por vaga) em
+[`docs/deploy.md`](docs/deploy.md).
 
 ## Segurança
 
