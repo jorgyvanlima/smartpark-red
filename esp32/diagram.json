@@ -1,440 +1,506 @@
 {
   "version": 1,
-  "author": "SmartPark-RED",
+  "author": "SmartParkRed Simulation",
   "editor": "wokwi",
   "parts": [
     {
-      "type": "wokwi-esp32-devkit-v1",
+      "type": "board-esp32-devkit-v1",
       "id": "esp",
-      "top": -50,
-      "left": -30,
+      "top": -204.32,
+      "left": 148.8,
       "attrs": {}
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_a1",
+      "top": -260,
+      "left": -250,
+      "attrs": {
+        "text": "A01"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_a1",
+      "top": -240,
+      "left": -250,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_a2",
+      "top": -260,
+      "left": -180,
+      "attrs": {
+        "text": "A02"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_a2",
+      "top": -240,
+      "left": -180,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_a3",
+      "top": -260,
+      "left": -110,
+      "attrs": {
+        "text": "A03"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_a3",
+      "top": -240,
+      "left": -110,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_a4",
+      "top": -260,
+      "left": -40,
+      "attrs": {
+        "text": "A04"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_a4",
+      "top": -240,
+      "left": -40,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_a5",
+      "top": -260,
+      "left": 30,
+      "attrs": {
+        "text": "A05 (P)"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_a5_pref",
+      "top": -238.6,
+      "left": 28.8,
+      "attrs": {
+        "color": "blue"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_b1",
+      "top": -140,
+      "left": -250,
+      "attrs": {
+        "text": "B01"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_b1",
+      "top": -120,
+      "left": -250,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_b2",
+      "top": -140,
+      "left": -180,
+      "attrs": {
+        "text": "B02"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_b2",
+      "top": -120,
+      "left": -180,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_b3",
+      "top": -140,
+      "left": -110,
+      "attrs": {
+        "text": "B03"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_b3",
+      "top": -120,
+      "left": -110,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_b4",
+      "top": -140,
+      "left": -40,
+      "attrs": {
+        "text": "B04"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_b4",
+      "top": -120,
+      "left": -40,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_b5",
+      "top": -140,
+      "left": 30,
+      "attrs": {
+        "text": "B05 (P)"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_b5_pref",
+      "top": -120,
+      "left": 30,
+      "attrs": {
+        "color": "blue"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_c1",
+      "top": -20,
+      "left": -250,
+      "attrs": {
+        "text": "C01"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_c1",
+      "top": 0,
+      "left": -250,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_c2",
+      "top": -20,
+      "left": -180,
+      "attrs": {
+        "text": "C02"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_c2",
+      "top": 0,
+      "left": -180,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_c3",
+      "top": -20,
+      "left": -110,
+      "attrs": {
+        "text": "C03"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_c3",
+      "top": 0,
+      "left": -110,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_c4",
+      "top": -20,
+      "left": -40,
+      "attrs": {
+        "text": "C04"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_c4",
+      "top": 0,
+      "left": -40,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_c5",
+      "top": -20,
+      "left": 30,
+      "attrs": {
+        "text": "C05 (P)"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_c5_pref",
+      "top": 0,
+      "left": 30,
+      "attrs": {
+        "color": "blue"
+      }
     },
     {
       "type": "wokwi-neopixel-canvas",
       "id": "strip",
-      "top": -260,
-      "left": 400,
+      "top": -340,
+      "left": -260,
       "attrs": {
         "pixels": "15",
         "columns": "15"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_A01",
-      "top": -50,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "A01"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_A02",
-      "top": 5,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "A02"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_A03",
-      "top": 60,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "A03"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_A04",
-      "top": 115,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "A04"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_A05",
-      "top": 170,
-      "left": 300,
-      "attrs": {
-        "color": "blue",
-        "label": "A05"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_B01",
-      "top": 225,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "B01"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_B02",
-      "top": 280,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "B02"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_B03",
-      "top": 335,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "B03"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_B04",
-      "top": 390,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "B04"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_B05",
-      "top": 445,
-      "left": 300,
-      "attrs": {
-        "color": "blue",
-        "label": "B05"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_C01",
-      "top": 500,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "C01"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_C02",
-      "top": 555,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "C02"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_C03",
-      "top": 610,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "C03"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_C04",
-      "top": 665,
-      "left": 300,
-      "attrs": {
-        "color": "green",
-        "label": "C04"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btn_C05",
-      "top": 720,
-      "left": 300,
-      "attrs": {
-        "color": "blue",
-        "label": "C05"
       }
     }
   ],
   "connections": [
     [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_a1:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_a2:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_a3:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_a4:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_a5_pref:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_b1:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_b2:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_b3:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_b4:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_b5_pref:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_c1:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_c2:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_c3:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_c4:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "btn_c5_pref:1.RX",
+      "black",
+      []
+    ],
+    [
+      "esp:13",
+      "btn_a1:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:12",
+      "btn_a2:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:14",
+      "btn_a3:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:27",
+      "btn_a4:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:26",
+      "btn_a5_pref:2.NTS",
+      "blue",
+      []
+    ],
+    [
+      "esp:25",
+      "btn_b1:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:33",
+      "btn_b2:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:32",
+      "btn_b3:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:35",
+      "btn_b4:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:34",
+      "btn_b5_pref:2.NTS",
+      "blue",
+      []
+    ],
+    [
+      "esp:23",
+      "btn_c1:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:22",
+      "btn_c2:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:21",
+      "btn_c3:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:19",
+      "btn_c4:2.NTS",
+      "green",
+      []
+    ],
+    [
+      "esp:18",
+      "btn_c5_pref:2.NTS",
+      "blue",
+      []
+    ],
+    [
       "esp:D4",
       "strip:DIN",
       "green",
-      [
-        "h0"
-      ]
+      []
     ],
     [
       "strip:VCC",
       "esp:5V",
       "red",
-      [
-        "h0"
-      ]
+      []
     ],
     [
       "strip:GND",
-      "esp:GND.1",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A01:1.l",
-      "esp:D13",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A01:2.r",
       "esp:GND.2",
       "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A02:1.l",
-      "esp:D12",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A02:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A03:1.l",
-      "esp:D14",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A03:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A04:1.l",
-      "esp:D27",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A04:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A05:1.l",
-      "esp:D26",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_A05:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B01:1.l",
-      "esp:D25",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B01:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B02:1.l",
-      "esp:D33",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B02:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B03:1.l",
-      "esp:D32",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B03:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B04:1.l",
-      "esp:D35",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B04:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B05:1.l",
-      "esp:D34",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_B05:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C01:1.l",
-      "esp:D23",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C01:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C02:1.l",
-      "esp:D22",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C02:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C03:1.l",
-      "esp:D21",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C03:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C04:1.l",
-      "esp:D19",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C04:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C05:1.l",
-      "esp:D18",
-      "orange",
-      [
-        "h0"
-      ]
-    ],
-    [
-      "btn_C05:2.r",
-      "esp:GND.2",
-      "black",
-      [
-        "h0"
-      ]
+      []
     ]
   ],
   "dependencies": {}
